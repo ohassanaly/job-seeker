@@ -13,3 +13,4 @@ wheels/
 .ipynb_checkpoints/
 /notebook
 .env
+**/secrets.py

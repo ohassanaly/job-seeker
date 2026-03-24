@@ -12,6 +12,7 @@ So far, we focused on [Welcome to the Jungle](https://www.welcometothejungle.com
 clone this repo
 uv sync
 add your .env file with openai and sendgrid API keys
+add a src/secrets.py file with your email adress informations
 cd src
 uv run main.py
 
