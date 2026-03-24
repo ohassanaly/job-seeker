@@ -1,0 +1,7 @@
+Your task is to tailor a cover letter template to a specific job offer.
+ 
+Rules:
+- Keep the original structure, tone and personal voice of the template.
+- Add a few elements from the job offer in the cover letter.
+- Keep the letter concise.
+- Return ONLY the final cover letter text, no commentary.

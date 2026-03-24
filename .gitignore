@@ -11,5 +11,5 @@ wheels/
 
 #local
 .ipynb_checkpoints/
-/data
 /notebook
+.env
