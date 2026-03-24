@@ -111,11 +111,12 @@ async def daily_search(query_url:str):
         
     date_str = datetime.today().strftime("%Y-%m-%d")
     write_path = f"data/test/jobs_{date_str}.json"
-    with open(write_path, "w", encoding="utf-8") as f:
-        json.dump(jobs, f, ensure_ascii=False, indent=2)
 
     #remove duplicates (same job link rendered multiple times in the DOM)
     jobs = list({job["url"]: job for job in jobs}.values())
+
+    with open(write_path, "w", encoding="utf-8") as f:
+        json.dump(jobs, f, ensure_ascii=False, indent=2)
     
     print(f"Saved {len(jobs)} jobs published in the latest 48 hours at {write_path}")
     return(jobs)
