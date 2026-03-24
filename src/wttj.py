@@ -88,11 +88,12 @@ async def daily_search(query_url:str):
         #Retrieve jobs and details
         await page.wait_for_selector("a[role='link'][href*='/jobs/']", timeout=30_000)
         job_links = await page.query_selector_all("a[role='link'][href*='/jobs/']")
-    
+        
         print("starting jobs scrapping")
         jobs = []
         #will iterate on 62 job offers maximum (page size)
         for link in job_links:
+
             title = (await link.inner_text()).strip()
             href = await link.get_attribute("href")
             job_url = f"https://www.welcometothejungle.com{href}"
@@ -109,9 +110,12 @@ async def daily_search(query_url:str):
         await browser.close()
         
     date_str = datetime.today().strftime("%Y-%m-%d")
-    write_path = f"data/jobs_{date_str}.json"
+    write_path = f"data/test/jobs_{date_str}.json"
     with open(write_path, "w", encoding="utf-8") as f:
         json.dump(jobs, f, ensure_ascii=False, indent=2)
+
+    #remove duplicates (same job link rendered multiple times in the DOM)
+    jobs = list({job["url"]: job for job in jobs}.values())
     
     print(f"Saved {len(jobs)} jobs published in the latest 48 hours at {write_path}")
     return(jobs)

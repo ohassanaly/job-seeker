@@ -85,4 +85,4 @@ if __name__ == "__main__":
 
     cover_letter = tailor_letter(cover_template, job_text, SYSTEM_PROMPT, client)
 
-    write_docx(cover_letter, f"data/{"_".join(url.split("/")[5:])+ ".docx"}")
+    write_docx(cover_letter, f"data/test/{"_".join(url.split("/")[5:])+ ".docx"}")

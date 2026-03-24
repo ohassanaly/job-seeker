@@ -6,3 +6,4 @@ Later goals :
 - automate the script running (using Airflow)
 - add other platforms : [Linkedin](https://www.linkedin.com/) ; [Choisir le Service Public](https://choisirleservicepublic.gouv.fr/)
 - extend the routine : based on job description, write a cover letter
+- Send a daily report by mail with the retrieved jobs
