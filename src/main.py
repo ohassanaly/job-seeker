@@ -4,13 +4,23 @@ from wttj import parse_published_to_hours, retrieve_job_details, daily_search
 from cover_letter import tailor_letter, write_docx
 from report_summary import generate_report, send_email
 from tqdm import tqdm
+from datetime import datetime
 from openai import OpenAI
 from sendgrid import SendGridAPIClient
 
 
 def main(query_url:str, cover_letters_path:str, cover_template:str, system_prompt:str, llm_client:OpenAI, sg_client:SendGridAPIClient):
     #retrieving fresh job offers
-    jobs = asyncio.run(daily_search(query_url))
+    date_str = datetime.today().strftime("%Y-%m-%d")
+    scrap_path = f"data/daily_scrap/jobs_{date_str}.json"
+
+    if not os.path.exists(scrap_path):
+        jobs = asyncio.run(daily_search(query_url))
+    else:
+        import json
+        with open(scrap_path, "r") as f:
+            jobs = json.load(f)
+        print(f"Job offers already scrapped today at: {scrap_path}")
     
     try :
         os.mkdir(cover_letters_path)
