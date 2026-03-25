@@ -39,9 +39,12 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
     import sendgrid
 
-    query_url="https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22data%20scientist%22&sortBy=mostRecent&page=1"
+    query_url_list=[
+    "https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22data%20scientist%22&sortBy=mostRecent&page=1",
+    "https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22ai%20engineer%22&page=1&sortBy=mostRecent",
+    ]
     date_str = datetime.today().strftime("%Y-%m-%d")
-    cover_letters_path = f"data/cover_letters_{date_str}/"
+    cover_letters_path = f"data/cover_letters/cover_letters_{date_str}/"
     
     load_dotenv()
 
@@ -54,7 +57,7 @@ if __name__ == "__main__":
     with open("data/resources/SYSTEM_PROMPT.txt") as f:
       SYSTEM_PROMPT = f.read()
 
-    main(query_url, cover_letters_path, cover_template, SYSTEM_PROMPT, llm_client, sg_client)
+    main(query_url_list, cover_letters_path, cover_template, SYSTEM_PROMPT, llm_client, sg_client)
 
     
 
