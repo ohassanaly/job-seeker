@@ -16,6 +16,7 @@ import asyncio
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 from datetime import datetime
+from dict import exclude_keywords
 
 def parse_published_to_hours(text: str) -> int | None:
     import re
@@ -69,6 +70,16 @@ def retrieve_job_details(url:str)-> dict:
     result = {"published": published, **sections}
     return(result)
 
+def filter_consultancies(title: str, details: dict, exclude_keywords:list) -> bool:
+    
+    searchable = " ".join([
+        title,
+        details.get("Descriptif du poste", ""),
+        details.get("Profil recherché", "")
+    ]).lower()
+    
+    return not any(keyword in searchable for keyword in exclude_keywords)
+
 async def daily_search(query_url_list:list[str]):
     
     async with async_playwright() as p:
@@ -104,8 +115,8 @@ async def daily_search(query_url_list:list[str]):
                 #html scrapping based on the job offer URL
                 details = retrieve_job_details(job_url)
 
-                #only retrieve the fresh job offers
-                if details["published"] <= 48 :
+                #only retrieve the fresh job offers and filter out consulting jobs
+                if details["published"] <= 48 and filter_consultancies(title, details, exclude_keywords):
                     all_jobs[job_url] = {
                         "title": title,
                         "url": job_url,
