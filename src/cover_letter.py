@@ -79,7 +79,7 @@ if __name__ == "__main__":
     with open("data/resources/SYSTEM_PROMPT.txt") as f:
       SYSTEM_PROMPT = f.read()
 
-    url= "https://jobs.workable.com/view/6gScRQ4s2JqXWQ5Gk13W7z/remote-data-scientist-in-france-at-albatross?utm_source=jackandjill"
+    url= "https://www.labanquepostale.com/candidats/offres-d-emploi/nos-offres-d-emploi.job-17729.html/data-scientist-confirmeefh.html"
     
     job_text = fetch_job_offer(url)
 

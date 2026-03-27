@@ -125,7 +125,7 @@ async def daily_search(query_url_list:list[str]):
         await browser.close()
         
     date_str = datetime.today().strftime("%Y-%m-%d")
-    write_path = f"data/daily_scrap/jobs_{date_str}.json"
+    write_path = f"data/daily_scrap/wttj_jobs_{date_str}.json"
 
     #remove duplicates (same job link rendered multiple times in the DOM)
     jobs = list(all_jobs.values())
