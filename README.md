@@ -1,7 +1,8 @@
 This repo aims at daily scrapping the job offers matching given defined criteria</br>
 
 # Project Description
-So far, we focused on [Welcome to the Jungle](https://www.welcometothejungle.com/fr)</br>
+So far, we focused on [Welcome to the Jungle](https://www.welcometothejungle.com/fr) 
+and [Linkedin](https://www.linkedin.com/) </br>
 - wttj.py allows scrapping all the job offers in the latest x hours appearing in the first result page following the filters provided in the URL
 - linkedin.py allows scrapping all the job offers in the latest 24 hours appearing in the first result page following the filters provided in the URL
 - report_summary.py generates a quick report of each offer found and sends an email
