@@ -73,16 +73,16 @@ if __name__ == "__main__":
 
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-    with open("data/cover_template.txt") as f:
+    with open("data/resources/cover_template.txt") as f:
       cover_template = f.read()
     
-    with open("data/SYSTEM_PROMPT.txt") as f:
+    with open("data/resources/SYSTEM_PROMPT.txt") as f:
       SYSTEM_PROMPT = f.read()
 
-    url = "https://www.welcometothejungle.com/fr/companies/leakmited/jobs/data-scientist_paris"
+    url= "https://www.labanquepostale.com/candidats/offres-d-emploi/nos-offres-d-emploi.job-17729.html/data-scientist-confirmeefh.html"
     
     job_text = fetch_job_offer(url)
 
     cover_letter = tailor_letter(cover_template, job_text, SYSTEM_PROMPT, client)
 
-    write_docx(cover_letter, f"data/test/{"_".join(url.split("/")[5:])+ ".docx"}")
+    write_docx(cover_letter, f"data/on_demand/{"_".join(url.split("/")[5:])+ ".docx"}")

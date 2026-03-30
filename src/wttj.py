@@ -16,6 +16,7 @@ import asyncio
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 from datetime import datetime
+from dict import exclude_keywords
 
 def parse_published_to_hours(text: str) -> int | None:
     import re
@@ -69,51 +70,65 @@ def retrieve_job_details(url:str)-> dict:
     result = {"published": published, **sections}
     return(result)
 
-async def daily_search(query_url:str):
+def filter_consultancies(title: str, details: dict, exclude_keywords:list) -> bool:
+    
+    searchable = " ".join([
+        title,
+        details.get("Descriptif du poste", ""),
+        details.get("Profil recherché", "")
+    ]).lower()
+    
+    return not any(keyword in searchable for keyword in exclude_keywords)
+
+async def daily_search(query_url_list:list[str]):
     
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
         page = await browser.new_page()
-        print("Loading page...")
-        await page.goto(query_url, wait_until="networkidle", timeout=60_000)
 
-        # Dismiss cookie banner if present
-        try:
-            await page.click("button[id*='accept'], button[id*='cookie'], button[data-testid*='cookie']", timeout=5_000)
-            print("Cookie banner dismissed")
-            await page.wait_for_timeout(2_000)  # let the page settle
-        except:
-            print("No cookie banner found")
+        all_jobs = {}
 
-        #Retrieve jobs and details
-        await page.wait_for_selector("a[role='link'][href*='/jobs/']", timeout=30_000)
-        job_links = await page.query_selector_all("a[role='link'][href*='/jobs/']")
+        for query_url in query_url_list:
+            print(f"Loading page: {query_url}")
+            await page.goto(query_url, wait_until="networkidle", timeout=60_000)
+
+            # Dismiss cookie banner if present
+            try:
+                await page.click("button[id*='accept'], button[id*='cookie'], button[data-testid*='cookie']", timeout=5_000)
+                print("Cookie banner dismissed")
+                await page.wait_for_timeout(2_000)  # let the page settle
+            except:
+                print("No cookie banner found")
+
+            #Retrieve jobs and details
+            await page.wait_for_selector("a[role='link'][href*='/jobs/']", timeout=30_000)
+            job_links = await page.query_selector_all("a[role='link'][href*='/jobs/']")
         
-        print("starting jobs scrapping")
-        jobs = []
-        #will iterate on 62 job offers maximum (page size)
-        for link in job_links:
+            print("starting jobs scrapping")
+        
+            #will iterate on 62 job offers maximum (page size)
+            for link in job_links:
 
-            title = (await link.inner_text()).strip()
-            href = await link.get_attribute("href")
-            job_url = f"https://www.welcometothejungle.com{href}"
-            #html scrapping based on the job offer URL
-            details = retrieve_job_details(job_url)
+                title = (await link.inner_text()).strip()
+                href = await link.get_attribute("href")
+                job_url = f"https://www.welcometothejungle.com{href}"
+                #html scrapping based on the job offer URL
+                details = retrieve_job_details(job_url)
 
-            #only retrieve the fresh job offers
-            if details["published"] <= 48 :
-                jobs.append({
-                    "title": title,
-                    "url": job_url,
-                    **details
-                })
+                #only retrieve the fresh job offers and filter out consulting jobs
+                if details["published"] <= 48 and filter_consultancies(title, details, exclude_keywords):
+                    all_jobs[job_url] = {
+                        "title": title,
+                        "url": job_url,
+                        **details
+                    }
         await browser.close()
         
     date_str = datetime.today().strftime("%Y-%m-%d")
-    write_path = f"data/test/jobs_{date_str}.json"
+    write_path = f"data/daily_scrap/wttj_jobs_{date_str}.json"
 
     #remove duplicates (same job link rendered multiple times in the DOM)
-    jobs = list({job["url"]: job for job in jobs}.values())
+    jobs = list(all_jobs.values())
 
     with open(write_path, "w", encoding="utf-8") as f:
         json.dump(jobs, f, ensure_ascii=False, indent=2)
@@ -123,5 +138,8 @@ async def daily_search(query_url:str):
 
 
 if __name__ == "__main__":
-    query_url="https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22data%20scientist%22&sortBy=mostRecent&page=1"
-    asyncio.run(daily_search(query_url))
+    query_url_list=[
+    "https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22data%20scientist%22&sortBy=mostRecent&page=1",
+    "https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22ai%20engineer%22&page=1&sortBy=mostRecent",
+    ]
+    asyncio.run(daily_search(query_url_list))

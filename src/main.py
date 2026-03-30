@@ -4,13 +4,23 @@ from wttj import parse_published_to_hours, retrieve_job_details, daily_search
 from cover_letter import tailor_letter, write_docx
 from report_summary import generate_report, send_email
 from tqdm import tqdm
+from datetime import datetime
 from openai import OpenAI
 from sendgrid import SendGridAPIClient
 
 
 def main(query_url:str, cover_letters_path:str, cover_template:str, system_prompt:str, llm_client:OpenAI, sg_client:SendGridAPIClient):
     #retrieving fresh job offers
-    jobs = asyncio.run(daily_search(query_url))
+    date_str = datetime.today().strftime("%Y-%m-%d")
+    scrap_path = f"data/daily_scrap/jobs_{date_str}.json"
+
+    if not os.path.exists(scrap_path):
+        jobs = asyncio.run(daily_search(query_url))
+    else:
+        import json
+        with open(scrap_path, "r") as f:
+            jobs = json.load(f)
+        print(f"Job offers already scrapped today at: {scrap_path}")
     
     try :
         os.mkdir(cover_letters_path)
@@ -39,9 +49,12 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
     import sendgrid
 
-    query_url="https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22data%20scientist%22&sortBy=mostRecent&page=1"
+    query_url_list=[
+    "https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22data%20scientist%22&sortBy=mostRecent&page=1",
+    "https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=full_time&query=%22ai%20engineer%22&page=1&sortBy=mostRecent",
+    ]
     date_str = datetime.today().strftime("%Y-%m-%d")
-    cover_letters_path = f"data/cover_letters_{date_str}/"
+    cover_letters_path = f"data/cover_letters/cover_letters_{date_str}/"
     
     load_dotenv()
 
@@ -54,7 +67,7 @@ if __name__ == "__main__":
     with open("data/resources/SYSTEM_PROMPT.txt") as f:
       SYSTEM_PROMPT = f.read()
 
-    main(query_url, cover_letters_path, cover_template, SYSTEM_PROMPT, llm_client, sg_client)
+    main(query_url_list, cover_letters_path, cover_template, SYSTEM_PROMPT, llm_client, sg_client)
 
     
 

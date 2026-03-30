@@ -13,7 +13,7 @@ def generate_report(jobs: list[dict], client) -> str:
     jobs_text = json.dumps(jobs, ensure_ascii=False, indent=2)
     
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4.1-mini", #1M tokens context window
         messages=[
             {
                 "role": "system",

@@ -14,3 +14,7 @@ wheels/
 /notebook
 .env
 **/secrets.py
+**/on_demand
+**/cover_letters
+*.log
+**/data
