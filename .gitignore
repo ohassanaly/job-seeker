@@ -18,3 +18,4 @@ wheels/
 **/cover_letters
 *.log
 **/data
+**/user_data

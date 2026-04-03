@@ -16,7 +16,7 @@ import asyncio
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 from datetime import datetime
-from dict import exclude_keywords
+from params import exclude_keywords, hours
 
 def parse_published_to_hours(text: str) -> int | None:
     import re
@@ -115,8 +115,14 @@ async def daily_search(query_url_list:list[str]):
                 #html scrapping based on the job offer URL
                 details = retrieve_job_details(job_url)
 
+                try :
+                    recent_published = details["published"] <= hours
+                except :
+                    print(f"promoted offer {job_url}")
+                    recent_published = True
+
                 #only retrieve the fresh job offers and filter out consulting jobs
-                if details["published"] <= 48 and filter_consultancies(title, details, exclude_keywords):
+                if  recent_published and filter_consultancies(title, details, exclude_keywords):
                     all_jobs[job_url] = {
                         "title": title,
                         "url": job_url,
@@ -133,7 +139,7 @@ async def daily_search(query_url_list:list[str]):
     with open(write_path, "w", encoding="utf-8") as f:
         json.dump(jobs, f, ensure_ascii=False, indent=2)
     
-    print(f"Saved {len(jobs)} jobs published in the latest 48 hours at {write_path}")
+    print(f"Saved {len(jobs)} jobs published in the latest {hours} hours at {write_path}")
     return(jobs)
 
 
